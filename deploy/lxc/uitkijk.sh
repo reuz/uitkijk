@@ -3,13 +3,14 @@
 # Run on the Proxmox HOST:
 #   bash -c "$(curl -fsSL https://raw.githubusercontent.com/reuz/uitkijk/main/deploy/lxc/uitkijk.sh)"
 #
-# In the community-scripts repo this file lives in ct/uitkijk.sh and uitkijk-install.sh in
-# install/. Here both are kept next to each other; build.func is fetched from community-scripts
-# and told (via the *_URL variables below) to use this fork for the install script.
+# Mirrors the community-scripts layout (ct/ + install/). The engine (build.func) lives in
+# community-scripts/core; the script root (where install/uitkijk-install.sh is looked up)
+# is pointed at this repo via COMMUNITY_SCRIPTS_URL.
 GH_REPO="${GH_REPO:-reuz/uitkijk}"
 GH_BRANCH="${GH_BRANCH:-main}"
-COMMUNITY_REPO="${COMMUNITY_REPO:-community-scripts/ProxmoxVE}"
-source <(curl -fsSL "https://raw.githubusercontent.com/${COMMUNITY_REPO}/main/misc/build.func")
+export COMMUNITY_SCRIPTS_URL="${COMMUNITY_SCRIPTS_URL:-https://raw.githubusercontent.com/${GH_REPO}/${GH_BRANCH}}"
+COMMUNITY_SCRIPTS_CORE_URL="${COMMUNITY_SCRIPTS_CORE_URL:-https://raw.githubusercontent.com/community-scripts/core/main}"
+source <(curl -fsSL "${COMMUNITY_SCRIPTS_CORE_URL}/core/build.func") || { echo "Could not fetch build.func" >&2; exit 1; }
 # Source: https://github.com/reuz/uitkijk
 APP="Uitkijk"
 var_tags="${var_tags:-camera;nvr;ai}"
@@ -20,8 +21,6 @@ var_os="${var_os:-debian}"
 var_version="${var_version:-12}"
 var_unprivileged="${var_unprivileged:-1}"
 
-# Install script is taken from this fork instead of the community-scripts repo
-export INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/${GH_REPO}/${GH_BRANCH}/deploy/lxc/uitkijk-install.sh"
 export GH_REPO GH_BRANCH
 
 header_info "$APP"
